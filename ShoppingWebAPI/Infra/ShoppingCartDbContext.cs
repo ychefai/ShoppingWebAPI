@@ -5,13 +5,10 @@ namespace Shopping.Infrastructure
 {
     public class ShoppingCartDbContext : DbContext
     {
-        private readonly string _connectionString;
+        
         public DbSet<ShoppingItem> ShoppingItems { get; set; }
 
-        public ShoppingCartDbContext(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
+       
        
 
         public ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : base(options)
@@ -19,14 +16,7 @@ namespace Shopping.Infrastructure
            
         }
 
-        public string Print() { 
-         return _connectionString;
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(_connectionString);
-        }
+      
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

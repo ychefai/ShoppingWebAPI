@@ -8,23 +8,54 @@ namespace ShoppingWebAPI.Controllers
     public class ShoppingCartController : Controller
     {
 
-      const  string connectionString = "Data Source=.;Initial Catalog=ShoppingCartDb;User ID=sa;Password=SqlServer@PcYC2023;TrustServerCertificate=True;";
-        ShoppingCartDbContext dbContext = new ShoppingCartDbContext(connectionString);
-
-        ShoppingCartRepository shoppingCartService;
-
-        public ShoppingCartController()
+       
+        private readonly  IShoppingCartRepository _shoppingCartService;
+       
+        public ShoppingCartController(IShoppingCartRepository shoppingCartService)
         {
-            shoppingCartService = new ShoppingCartRepository(dbContext);
+            _shoppingCartService=shoppingCartService;
         }
 
         [HttpGet]
         public IActionResult Get()
-        {
-            var items = shoppingCartService.GetAllItems();
+        {           
+            var items = _shoppingCartService.GetAllItems();
             return Ok(items);
         }
 
-       
+        [HttpGet("{id}")]
+        public IActionResult Get(Guid id)
+        {
+            var item = _shoppingCartService.GetById(id);
+            if (item == null)
+            {
+                return NotFound();
+            }
+            return Ok(item);
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromBody] ShoppingItem value)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var item = _shoppingCartService.Add(value);
+            return CreatedAtAction("Get", new { id = item.Id }, item);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Remove(Guid id)
+        {
+            var existingItem = _shoppingCartService.GetById(id);
+            if (existingItem == null)
+            {
+                return NotFound();
+            }
+            _shoppingCartService.Remove(id);
+            return NoContent();
+        }
+
     }
 }
